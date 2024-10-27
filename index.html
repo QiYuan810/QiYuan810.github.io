@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>照片展示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('2024.8.26.jpg'); /* 背景图片 */
+            background-size: cover;
+            background-position: center;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            margin: 20px;
+            max-width: 1000px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.8); /* 添加透明度 */
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .dates {
+            width: 25%;
+            padding: 20px;
+            margin-right: 20px;
+            overflow-y: auto;
+            max-height: 600px;
+            border-right: 1px solid #ddd;
+        }
+        .dates ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .dates li {
+            padding: 10px 0;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+        }
+        .dates li:hover {
+            background-color: #b3e5ff;
+        }
+        .photo-display {
+            width: 75%;
+            padding: 20px;
+        }
+        .photo-display img {
+            max-width: 100%;
+            max-height: 500px;
+            margin: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="dates">
+        <ul id="month-list">
+            <!-- 月份将由JavaScript动态生成 -->
+        </ul>
+    </div>
+
+    <div class="photo-display" id="photo-display">
+        <!-- 照片将显示在这里 -->
+    </div>
+</div>
+
+<script>
+    const startDate = new Date(2023, 3, 5);
+    const endDate = new Date(2024, 9, 1);
+    const monthList = document.getElementById('month-list');
+    const photoDisplay = document.getElementById('photo-display');
+
+    const excludedDates = [
+        '2023年04月07日', '2023年04月08日', '2023年04月09日', '2023年04月10日',
+        '2023年04月12日', '2023年04月14日', '2023年04月15日', '2023年04月16日', '2023年04月17日', '2023年04月19日',
+        '2023年04月20日', '2023年04月21日', '2023年04月23日', '2023年04月24日', '2023年04月25日', '2023年04月26日', '2023年04月27日', '2023年04月28日',
+        '2023年04月30日', '2023年05月02日', '2023年05月03日', '2023年05月04日', '2023年05月05日', '2023年05月06日', '2023年05月07日', '2023年05月08日', 
+        '2023年05月09日', '2023年05月10日', '2023年05月11日', '2023年05月12日', '2023年05月13日', '2023年05月14日', '2023年05月15日',
+        '2023年05月18日', '2023年05月19日', '2023年05月20日', '2023年05月21日', '2023年05月22日', '2023年05月23日', '2023年05月24日', '2023年05月25日', 
+        '2023年05月26日', '2023年05月27日', '2023年05月28日', '2023年05月29日', '2023年05月30日', '2023年05月31日', 
+        '2023年06月01日', '2023年06月02日','2023年06月03日','2023年06月04日','2023年06月05日','2023年06月06日','2023年06月07日','2023年06月08日','2023年06月09日','2023年06月10日','2023年06月11日','2023年06月12日','2023年06月13日','2023年06月14日','2023年06月15日','2023年06月16日','2023年06月17日','2023年06月18日','2023年06月19日','2023年06月20日','2023年06月21日','2023年06月22日','2023年06月23日','2023年06月24日','2023年06月25日','2023年06月26日','2023年06月27日','2023年06月28日','2023年06月29日','2023年06月30日',
+        '2023年07月01日', '2023年07月02日', '2023年07月03日', '2023年07月04日', '2023年07月05日', '2023年07月06日', '2023年07月07日', '2023年07月08日', '2023年07月09日', '2023年07月10日', '2023年07月11日', '2023年07月12日', '2023年07月13日', '2023年07月14日', '2023年07月15日', '2023年07月16日', '2023年07月17日', '2023年07月18日', '2023年07月21日', '2023年07月22日', '2023年07月23日', '2023年07月24日', '2023年07月25日', '2023年07月26日', '2023年07月27日', '2023年07月28日', '2023年07月29日', '2023年07月30日', '2023年07月31日',
+        '2023年08月01日', '2023年08月02日', '2023年08月03日', '2023年08月04日', '2023年08月05日', '2023年08月06日', '2023年08月07日', '2023年08月08日', '2023年08月09日', '2023年08月11日', '2023年08月12日', '2023年08月13日', '2023年08月14日', '2023年08月15日', '2023年08月16日', '2023年08月17日', '2023年08月18日', '2023年08月19日', '2023年08月20日', '2023年08月21日', '2023年08月22日', '2023年08月23日', '2023年08月24日', '2023年08月25日', '2023年08月26日', '2023年08月27日', '2023年08月28日', '2023年08月29日', '2023年08月30日', '2023年08月31日',
+        '2023年09月01日', '2023年09月02日', '2023年09月03日', '2023年09月04日', '2023年09月05日', '2023年09月06日', '2023年09月07日', '2023年09月08日', '2023年09月09日', '2023年09月10日', '2023年09月11日', '2023年09月12日', '2023年09月13日', '2023年09月14日', '2023年09月15日', '2023年09月16日', '2023年09月17日', '2023年09月18日', '2023年09月19日', '2023年09月20日', '2023年09月21日', '2023年09月22日', '2023年09月24日', '2023年09月25日', '2023年09月26日', '2023年09月27日', '2023年09月28日', '2023年09月29日', '2023年09月30日',
+        '2023年10月01日', '2023年10月02日','2023年10月03日','2023年10月04日','2023年10月05日','2023年10月06日','2023年10月07日','2023年10月08日','2023年10月09日','2023年10月10日','2023年10月11日','2023年10月12日','2023年10月13日','2023年10月14日','2023年10月15日','2023年10月16日','2023年10月17日','2023年10月18日','2023年10月19日','2023年10月20日','2023年10月21日','2023年10月22日','2023年10月23日','2023年10月24日','2023年10月25日','2023年10月26日','2023年10月27日','2023年10月28日','2023年10月29日','2023年10月30日','2023年10月31日',
+        '2023年11月01日', '2023年11月02日', '2023年11月03日', '2023年11月04日', '2023年11月05日', '2023年11月06日', '2023年11月07日', '2023年11月08日', '2023年11月09日', '2023年11月10日', '2023年11月11日', '2023年11月12日', '2023年11月13日', '2023年11月15日', '2023年11月16日', '2023年11月17日', '2023年11月18日', '2023年11月19日', '2023年11月20日', '2023年11月21日', '2023年11月22日', '2023年11月23日', '2023年11月24日', '2023年11月25日', '2023年11月27日', '2023年11月28日', '2023年11月29日', '2023年11月30日', 
+        '2023年12月01日', '2023年12月02日', '2023年12月03日', '2023年12月04日', '2023年12月05日', '2023年12月06日', '2023年12月07日', '2023年12月08日', '2023年12月09日', '2023年12月10日', '2023年12月11日', '2023年12月12日', '2023年12月13日', '2023年12月14日', '2023年12月17日', '2023年12月18日', '2023年12月19日', '2023年12月20日', '2023年12月21日', '2023年12月22日', '2023年12月23日', '2023年12月24日', '2023年12月26日', '2023年12月27日', '2023年12月28日', '2023年12月29日', '2023年12月30日', '2023年12月31日',
+        '2024年01月01日', '2024年01月31日', '2024年02月01日', '2024年02月09日', '2024年02月11日', '2024年02月18日', '2024年02月22日', '2024年02月29日',
+        '2024年03月01日', '2024年03月31日', '2024年04月01日', '2024年04月26日', '2024年04月28日', '2024年04月30日',
+        '2024年05月01日', '2024年05月16日', '2024年05月18日', '2024年05月26日', '2024年05月28日', '2024年05月31日',
+        '2024年06月01日', '2024年06月25日', '2024年06月27日', '2024年06月30日',
+        '2024年07月01日', '2024年07月10日', '2024年07月12日', '2024年07月14日', '2024年07月16日'
+    ];
+
+    // 定义日期及其对应的图片路径
+    const dateImages = {
+        '2023年04月05日': ['image/1.png', 'image/2.png', 'image/3.jpg'],
+        '2023年04月06日': ['image/4.jpg', 'image/5.png', 'image/6.png', 'image/7.png', 'image/8.png', 'image/9.png', 'image/10.png'],
+        '2023年04月11日': ['image/11.png'],
+        '2023年04月13日': [ 'image/11.png', 'image/12.png', 'image/13.png', 'image/14.png'],
+        '2023年04月18日': [ 'image/15.png'],
+        '2023年04月22日': [ 'image/16.png', 'image/17.png', 'image/18.png'],
+        '2023年04月29日': [ 'image/18.png', 'image/19.png', 'image/20.png', 'image/21.png', 'image/22.png', 'image/23.png', 'image/24.png', 'image/25.png', 'image/26.png', 'image/27.png'],
+        '2023年05月01日': [ 'image/28.png', 'image/29.png'],
+        '2023年05月16日': [ 'image/29.png', 'image/30.png', 'image/31.png', 'image/32.png'],
+        '2023年05月17日': [ 'image/32.png', 'image/33.png', 'image/34.png', 'image/35.png', 'image/36.png', 'image/37.png', 'image/38.png'],
+        '2023年07月19日': [ 'image/38.png'],
+        '2023年07月20日': [ 'image/38.png', 'image/39.png', 'image/40.png', 'image/41.png', 'image/42.png', 'image/43.png'],
+        '2023年08月10日': [ 'image/43.png', 'image/44.png'],
+        '2023年09月23日': [ 'image/45.png', 'image/230923.png'],
+        '2023年11月14日': [ 'image/46.png'],
+        '2023年11月26日': [ 'image/46.png', 'image/231126.png'],
+        '2023年12月15日': [ 'image/47.png'],
+        '2023年12月16日': [ 'image/47.png'],
+        '2023年12月25日': [ 'image/231225.png'],
+        '2024年02月10日': [ 'image/48.png', 'image/49.png'],
+        '2024年02月19日': [ 'image/49.png', 'image/50.png', 'image/24021908.png', 'image/51.png', 'image/52.png', 'image/53.png', 'image/24021901.png', 'image/54.png', 'image/24021902.png', 'image/55.png', 'image/24021903.png', 'image/56.png', 'image/24021904.png', 'image/57.png', 'image/24021905.png', 'image/58.png', 'image/24021906.png', 'image/59.png', 'image/24021907.png'],
+        // 添加更多日期和对应图片...
+    };
+
+    function formatDate(date) {
+        const year = date.getFullYear();
+        const month = ('0' + (date.getMonth() + 1)).slice(-2);
+        const day = ('0' + date.getDate()).slice(-2);
+        return `${year}年${month}月${day}日`;
+    }
+
+    const datesByMonth = {};
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        const monthKey = `${d.getFullYear()}年${('0' + (d.getMonth() + 1)).slice(-2)}月`;
+        const dateKey = formatDate(d);
+
+        if (excludedDates.includes(dateKey)) continue;
+
+        if (!datesByMonth[monthKey]) {
+            datesByMonth[monthKey] = [];
+        }
+        datesByMonth[monthKey].push(dateKey);
+    }
+
+    for (const monthKey in datesByMonth) {
+        const monthItem = document.createElement('li');
+        monthItem.textContent = monthKey;
+        monthItem.onclick = () => toggleDays(monthKey);
+        const dayList = document.createElement('ul');
+        dayList.classList.add('hidden');
+        dayList.id = `days-${monthKey}`;
+        datesByMonth[monthKey].forEach(dateKey => {
+            const dayItem = document.createElement('li');
+            dayItem.textContent = dateKey;
+            dayItem.onclick = () => showPhotos(dateKey);
+            dayList.appendChild(dayItem);
+        });
+        monthItem.appendChild(dayList);
+        monthList.appendChild(monthItem);
+    }
+
+    function toggleDays(monthKey) {
+        const dayList = document.getElementById(`days-${monthKey}`);
+        dayList.classList.toggle('hidden');
+    }
+
+    function showPhotos(dateKey) {
+        photoDisplay.innerHTML = ''; // 清空之前的照片
+        const photos = dateImages[dateKey]; // 获取当前日期的照片数组
+
+        if (photos) {
+            photos.forEach(photoSrc => {
+                const img = document.createElement('img');
+                img.src = photoSrc; // 设置图片路径
+                img.alt = dateKey; // 设置图片的alt属性
+                photoDisplay.appendChild(img); // 将图片添加到显示区域
+            });
+        } else {
+            photoDisplay.innerHTML = '<p>没有可用的照片</p >'; // 如果没有照片则显示提示
+        }
+    }
+</script>
+
+</body>
+</html>
